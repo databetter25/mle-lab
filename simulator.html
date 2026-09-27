@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>시뮬레이터 · 가능도 실험실</title>
+    <meta name="description" content="분포를 골라 표본을 뽑고 후보 모수를 움직이며 가능도가 어떻게 변하는지 봅니다." />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="vendor/pretendard/pretendardvariable-dynamic-subset.css" />
+    <link rel="stylesheet" href="vendor/katex/katex.min.css" />
+    <link rel="stylesheet" href="assets/css/tokens.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <script defer src="vendor/d3.v7.min.js"></script>
+    <script defer src="vendor/katex/katex.min.js"></script>
+    <script type="module" src="assets/js/pages/simulator.js"></script>
+  </head>
+  <body class="has-mobile-bar">
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="inner">
+        <a class="brand" href="index.html"><img src="assets/favicon.svg" width="24" height="24" alt="" />가능도 실험실</a>
+        <nav class="site-nav" aria-label="주 메뉴">
+          <ul>
+            <li><a href="index.html">홈</a></li>
+            <li><a href="concepts.html">개념 따라가기</a></li>
+            <li><a href="simulator.html" aria-current="page">시뮬레이터</a></li>
+            <li><a href="derivations.html">유도 노트</a></li>
+            <li><a href="sampling.html">반복 실험</a></li>
+            <li><a href="help.html">도움말</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class="page-head">
+        <h1>시뮬레이터</h1>
+        <p id="dist-lesson">분포를 고르고 후보 모수를 움직여 보세요. 세 패널과 수치 카드가 함께 바뀝니다.</p>
+      </div>
+
+      <div class="sim-top">
+        <div class="dist-tabs" role="tablist" aria-label="분포 선택" id="dist-tabs"></div>
+        <div class="btn-row">
+          <a class="btn btn-sm" id="deriv-link" href="derivations.html">유도 보기</a>
+          <button type="button" class="btn btn-sm" id="copy-link">링크 복사</button>
+        </div>
+      </div>
+
+      <div id="hl-banner" class="callout info banner hidden" role="note">
+        <span id="hl-text"></span>
+        <button type="button" class="btn btn-sm" id="hl-close">닫기</button>
+      </div>
+
+      <div class="sim-layout" id="sim" role="tabpanel" aria-labelledby="tab-normal">
+        <aside class="controls card" aria-label="조작부">
+          <div class="controls-body">
+            <section aria-labelledby="h-sample">
+              <h2 id="h-sample">표본</h2>
+              <div class="field">
+                <div class="field-head"><label for="t0-num"><span class="swatch true" aria-hidden="true"></span><span id="t0-label">참값 θ₀</span></label></div>
+                <div class="range-row">
+                  <input type="range" class="true-range" id="t0-range" aria-labelledby="t0-label" />
+                  <input type="number" id="t0-num" />
+                </div>
+              </div>
+              <div class="field hidden" id="t02-field">
+                <div class="field-head"><label for="t02-num"><span class="swatch true" aria-hidden="true"></span><span id="t02-label">참값 σ₀²</span></label></div>
+                <div class="range-row">
+                  <input type="range" class="true-range" id="t02-range" aria-labelledby="t02-label" />
+                  <input type="number" id="t02-num" />
+                </div>
+              </div>
+              <div id="known-fields"></div>
+              <div class="field">
+                <div class="field-head"><label for="n-num" id="n-label">표본크기 n</label></div>
+                <div class="range-row">
+                  <input type="range" id="n-range" min="1" max="200" step="1" aria-labelledby="n-label" />
+                  <input type="number" id="n-num" min="1" max="200" step="1" />
+                </div>
+                <p class="field-hint" id="n-hint">n을 늘려도 이미 뽑은 점은 그대로 남습니다.</p>
+              </div>
+              <div class="field">
+                <div class="field-head"><label for="seed">난수 시드</label></div>
+                <div class="range-row">
+                  <input type="number" id="seed" min="0" step="1" />
+                  <button type="button" class="btn btn-primary btn-sm" id="resample">새 표본 <kbd>R</kbd></button>
+                </div>
+                <p class="field-hint">같은 시드 = 같은 표본. 새 표본은 시드를 1 올립니다.</p>
+              </div>
+              <details class="field" id="data-details">
+                <summary class="field-label">자료 직접 입력</summary>
+                <p class="field-hint">숫자를 쉼표·공백·줄바꿈으로 구분해 붙여 넣으세요 (최대 200개).</p>
+                <textarea id="data-input" aria-label="직접 입력할 관측치"></textarea>
+                <div class="btn-row" style="margin-top: 8px">
+                  <button type="button" class="btn btn-sm" id="data-apply">적용</button>
+                  <button type="button" class="btn btn-sm" id="data-clear">표본으로 되돌리기</button>
+                </div>
+                <label class="check"><input type="checkbox" id="edit-toggle" /> 패널 A를 눌러 점 추가, 점을 눌러 삭제</label>
+                <p class="field-hint" id="data-msg" role="status"></p>
+              </details>
+            </section>
+
+            <section aria-labelledby="h-cand">
+              <h2 id="h-cand">후보 모수</h2>
+              <div class="field candidate-field">
+                <div class="field-head"><label for="th-num"><span class="swatch theta" aria-hidden="true"></span><span id="th-label">후보 θ</span></label></div>
+                <div class="range-row">
+                  <input type="range" class="theta-range" id="th-range" aria-labelledby="th-label" />
+                  <input type="number" id="th-num" />
+                </div>
+              </div>
+              <div class="field candidate-field hidden" id="th2-field">
+                <div class="field-head"><label for="th2-num"><span class="swatch theta" aria-hidden="true"></span><span id="th2-label">후보 σ²</span></label></div>
+                <div class="range-row">
+                  <input type="range" class="theta-range" id="th2-range" aria-labelledby="th2-label" />
+                  <input type="number" id="th2-num" />
+                </div>
+              </div>
+              <div class="btn-row">
+                <button type="button" class="btn btn-sm" id="find-max">최댓값 찾기</button>
+                <button type="button" class="btn btn-sm" id="goto-mle">θ̂로 이동</button>
+                <button type="button" class="btn btn-sm" id="zoom" aria-pressed="false">θ̂ 주변 확대</button>
+              </div>
+              <p class="field-hint">←/→ 로 후보를 옮기고 Shift를 함께 누르면 10배로 움직입니다. 패널 C 곡선을 끌어도 됩니다.</p>
+            </section>
+
+            <section aria-labelledby="h-view">
+              <h2 id="h-view">보기</h2>
+              <div class="range-row" style="justify-content: space-between">
+                <label class="check"><input type="checkbox" id="hide-true" /> 참값 숨기기</label>
+                <button type="button" class="btn btn-sm" id="reveal">공개</button>
+              </div>
+              <label class="check"><input type="checkbox" id="opt-rel" /> 상대가능도 L(θ)/L(θ̂)로 보기</label>
+              <label class="check"><input type="checkbox" id="opt-tan" /> 접선과 기울기(점수함수)</label>
+              <label class="check"><input type="checkbox" id="opt-truecurve" /> 참값 모형 곡선 (패널 A)</label>
+              <label class="check"><input type="checkbox" id="opt-curv" /> 곡률(정보량)과 95% 가능도 구간</label>
+            </section>
+          </div>
+        </aside>
+
+        <div class="panels">
+          <section class="panel" id="panel-a" aria-labelledby="pa-h">
+            <div class="panel-head">
+              <h2 id="pa-h"><span class="tag">A</span>데이터와 후보 모형</h2>
+              <ul class="legend">
+                <li><span class="swatch obs" aria-hidden="true"></span>관측치 xᵢ</li>
+                <li><span class="swatch theta" aria-hidden="true"></span>후보 모형 f(x | θ)</li>
+                <li class="true-only"><span class="swatch true" aria-hidden="true"></span>참값 모형</li>
+              </ul>
+            </div>
+            <p class="panel-desc" id="pa-desc">점선의 높이 f(xᵢ | θ)가 "이 점이 후보 모형에서 얼마나 그럴듯한가"입니다. 점에 마우스를 올려 보세요.</p>
+            <div id="chart-a"></div>
+          </section>
+
+          <section class="panel" id="panel-b" aria-labelledby="pb-h">
+            <div class="panel-head">
+              <h2 id="pb-h"><span class="tag">B</span>기여분 원장</h2>
+              <div class="panel-tools">
+                <div class="segmented" role="group" aria-label="막대 정렬">
+                  <button type="button" id="sort-index" aria-pressed="true">관측 순서</button>
+                  <button type="button" id="sort-value" aria-pressed="false">값 순서</button>
+                </div>
+                <button type="button" class="btn btn-sm" id="prod-toggle" aria-pressed="false">곱으로 보면</button>
+              </div>
+            </div>
+            <p class="panel-desc" id="pb-desc">막대 = log f(xᵢ | θ). 모두 더한 것이 오른쪽 합계 ℓ(θ)입니다. 파랑 눈금은 θ̂에서의 값 — θ를 움직이면 어떤 막대는 길어지고 어떤 막대는 짧아집니다.</p>
+            <div id="chart-b"></div>
+          </section>
+
+          <section class="panel" id="panel-c" aria-labelledby="pc-h">
+            <div class="panel-head">
+              <h2 id="pc-h"><span class="tag">C</span><span id="pc-title">가능도 곡선</span></h2>
+              <ul class="legend">
+                <li><span class="swatch theta" aria-hidden="true"></span>후보 θ</li>
+                <li><span class="swatch mle" aria-hidden="true"></span>최대가능도추정값 θ̂</li>
+                <li class="true-only"><span class="swatch true" aria-hidden="true"></span>참값 θ₀</li>
+                <li><span class="swatch score" aria-hidden="true"></span>접선 (기울기 = 점수함수)</li>
+              </ul>
+            </div>
+            <p class="panel-desc" id="pc-desc">곡선을 끌어 후보를 옮기세요. 꼭대기에서 접선이 수평이 됩니다.</p>
+            <div id="chart-c"></div>
+            <div id="chart-c2" class="hidden"></div>
+            <p class="small tabular" id="curv-info"></p>
+            <div class="callout warn hidden" id="explain" role="status"></div>
+            <div class="iter hidden" id="iter">
+              <div class="iter-head">
+                <strong id="iter-title">뉴턴 반복: θ ← θ − ℓ′(θ) / ℓ″(θ)</strong>
+                <div class="btn-row">
+                  <button type="button" class="btn btn-sm" id="anim-play">일시정지</button>
+                  <button type="button" class="btn btn-sm" id="anim-step">한 단계씩</button>
+                  <button type="button" class="btn btn-sm" id="anim-close">닫기</button>
+                </div>
+              </div>
+              <div class="iter-table-wrap">
+                <table class="data" id="iter-table" aria-describedby="iter-title">
+                  <thead><tr></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="callout myth" id="myth-c" style="margin-top: 12px">
+              <div class="callout-title">흔한 오해: "로그를 취하면 답이 달라진다"</div>
+              로그는 증가함수라서 최댓값의 위치가 같습니다. 위 보기 옵션에서 ℓ(θ)와 L(θ)/L(θ̂)를 번갈아 켜 보세요 — 파랑 세로선이 움직이지 않습니다.
+            </div>
+          </section>
+
+          <section class="panel" id="panel-stats" aria-labelledby="ps-h">
+            <div class="panel-head"><h2 id="ps-h">수치 카드</h2></div>
+            <div class="formula-line" id="formula"></div>
+            <div class="stats" id="stats"></div>
+            <div class="callout warn hidden" id="boundary-note"></div>
+            <div class="callout myth hidden" id="myth-dist" style="margin-top: 12px"></div>
+            <p class="small" id="summary" aria-live="polite" style="margin-top: 12px"></p>
+          </section>
+        </div>
+      </div>
+
+      <div class="mobile-bar" aria-label="빠른 조작">
+        <label for="mb-range" id="mb-label">θ</label>
+        <input type="range" class="theta-range" id="mb-range" aria-labelledby="mb-label" />
+        <button type="button" class="btn btn-primary btn-sm" id="mb-resample">새 표본</button>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="inner">가능도 실험실 · 모든 계산은 브라우저에서 합니다. 링크 복사로 같은 표본·같은 장면을 공유할 수 있습니다.</div>
+    </footer>
+  </body>
+</html>

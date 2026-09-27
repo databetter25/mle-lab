@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>개념 따라가기 · 가능도 실험실</title>
+    <meta name="description" content="확률과 가능도, 곱에서 합으로, 꼭대기 찾기, 추정량의 성질까지 네 단계 투어." />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="vendor/pretendard/pretendardvariable-dynamic-subset.css" />
+    <link rel="stylesheet" href="vendor/katex/katex.min.css" />
+    <link rel="stylesheet" href="assets/css/tokens.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <script defer src="vendor/d3.v7.min.js"></script>
+    <script defer src="vendor/katex/katex.min.js"></script>
+    <script type="module" src="assets/js/pages/concepts.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="inner">
+        <a class="brand" href="index.html"><img src="assets/favicon.svg" width="24" height="24" alt="" />가능도 실험실</a>
+        <nav class="site-nav" aria-label="주 메뉴">
+          <ul>
+            <li><a href="index.html">홈</a></li>
+            <li><a href="concepts.html" aria-current="page">개념 따라가기</a></li>
+            <li><a href="simulator.html">시뮬레이터</a></li>
+            <li><a href="derivations.html">유도 노트</a></li>
+            <li><a href="sampling.html">반복 실험</a></li>
+            <li><a href="help.html">도움말</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+
+      <div class="page-head">
+        <h1>개념 따라가기</h1>
+        <p>네 단계를 차례로 따라가면 "관측된 표본을 가장 그럴듯하게 만드는 모수가 최대가능도추정값"이라는 뜻이 그림으로 잡힙니다. 단계마다 직접 해 보기 과제와 확인 질문이 하나씩 있습니다.</p>
+      </div>
+
+      <nav aria-label="투어 단계" class="btn-row" style="margin-bottom: 8px">
+        <a class="btn btn-sm" href="#step1">1. 확률과 가능도</a>
+        <a class="btn btn-sm" href="#step2">2. 곱에서 합으로</a>
+        <a class="btn btn-sm" href="#step3">3. 꼭대기 찾기</a>
+        <a class="btn btn-sm" href="#step4">4. 추정량의 성질</a>
+      </nav>
+
+      <section class="section" id="step1" aria-labelledby="h1s">
+        <h2 id="h1s">1단계 · 확률과 가능도</h2>
+        <div class="prose" data-math>
+          <p>지수분포의 밀도 $f(x \mid \lambda) = \lambda e^{-\lambda x}$ 하나를 두 방향으로 봅니다. <strong>왼쪽</strong>은 $\lambda$를 고정하고 $x$를 바꾼 곡선 — 어떤 값이 잘 나오는지 알려 주는 <strong>확률(밀도)</strong>입니다. <strong>오른쪽</strong>은 관측값 $x = 1.2$를 고정하고 $\lambda$를 바꾼 곡선 — 어떤 모수가 이 관측을 잘 설명하는지 알려 주는 <strong>가능도</strong> $L(\lambda \mid x)$입니다.</p>
+        </div>
+        <div class="field" style="max-width: 420px">
+          <div class="field-head"><label for="s1-num"><span class="swatch theta" aria-hidden="true"></span><span id="s1-label">λ (두 그림이 함께 씀)</span></label></div>
+          <div class="range-row"><input type="range" class="theta-range" id="s1-range" min="0.1" max="4" step="0.01" aria-labelledby="s1-label" /><input type="number" id="s1-num" min="0.1" max="4" step="0.01" /></div>
+        </div>
+        <div class="two-col">
+          <div class="card"><h3>확률: λ 고정, x가 변한다</h3><div id="s1-left"></div></div>
+          <div class="card"><h3>가능도: x = 1.2 고정, λ가 변한다</h3><div id="s1-right"></div><p class="small tabular" id="s1-area"></p></div>
+        </div>
+        <div class="task" id="s1-task"><span class="label">직접 해 보기</span><span id="s1-task-text">λ를 움직여 왼쪽 그림에서 x = 1.2 위치의 높이(주황 점)가 가장 커지게 해 보세요. 그때 오른쪽 곡선의 어디에 있나요?</span></div>
+        <div class="callout myth" style="margin-top: 12px">
+          <div class="callout-title">흔한 오해: "가능도는 λ가 참일 확률이다"</div>
+          가능도는 λ에 대한 확률분포가 아닙니다. 오른쪽 곡선 아래 넓이를 λ에 대해 구하면 1이 아닙니다 (여기서는 1/x² ≈ 0.694).
+        </div>
+        <div class="quiz" data-quiz="s1"></div>
+      </section>
+
+      <section class="section" id="step2" aria-labelledby="h2s">
+        <h2 id="h2s">2단계 · 곱에서 합으로</h2>
+        <div class="prose" data-math>
+          <p>관측치가 여러 개면 가능도는 관측치별 밀도의 곱 $L(\mu) = \prod f(x_i \mid \mu)$입니다. 1보다 작은 수를 계속 곱하니 관측치를 더할 때마다 가능도가 급격히 작아집니다. 로그를 취하면 곱이 합 $\ell(\mu) = \sum \log f(x_i \mid \mu)$이 되어 다루기 쉬워집니다. (정규분포, $\sigma = 1$)</p>
+        </div>
+        <div class="btn-row" style="margin-bottom: 12px">
+          <button type="button" class="btn btn-primary btn-sm" id="s2-add">관측치 하나 더하기</button>
+          <button type="button" class="btn btn-sm" id="s2-all">20개 모두</button>
+          <button type="button" class="btn btn-sm" id="s2-reset">처음부터</button>
+          <span class="small tabular" id="s2-count" aria-live="polite"></span>
+        </div>
+        <div class="field" style="max-width: 420px">
+          <div class="field-head"><label for="s2-num"><span class="swatch theta" aria-hidden="true"></span><span id="s2-label">후보 μ</span></label></div>
+          <div class="range-row"><input type="range" class="theta-range" id="s2-range" min="-2" max="4" step="0.01" aria-labelledby="s2-label" /><input type="number" id="s2-num" min="-2" max="4" step="0.01" /></div>
+        </div>
+        <div class="two-col">
+          <div class="card"><h3>곱: 가능도 L(μ)</h3><div id="s2-left"></div><p class="small tabular" id="s2-prod"></p></div>
+          <div class="card"><h3>합: 로그가능도 ℓ(μ)</h3><div id="s2-right"></div><p class="small tabular" id="s2-sum"></p></div>
+        </div>
+        <div class="task"><span class="label">직접 해 보기</span><span>관측치를 20개까지 더하며 왼쪽의 곱이 몇 자릿수까지 작아지는지 보세요. 오른쪽 막대의 합은 그 곱의 로그와 같습니다.</span></div>
+        <div class="quiz" data-quiz="s2"></div>
+      </section>
+
+      <section class="section" id="step3" aria-labelledby="h3s">
+        <h2 id="h3s">3단계 · 꼭대기 찾기</h2>
+        <div class="prose" data-math>
+          <p>로그가능도 곡선의 기울기 $\ell'(\mu)$를 <strong>점수함수</strong>라고 부릅니다. 기울기가 양수면 오른쪽으로 갈수록 올라가고, 음수면 왼쪽이 오르막입니다. 꼭대기에서는 접선이 수평, 즉 $\ell'(\hat\mu) = 0$입니다. (정규분포, $\sigma = 1$, 관측치 10개)</p>
+        </div>
+        <div class="field" style="max-width: 420px">
+          <div class="field-head"><label for="s3-num"><span class="swatch theta" aria-hidden="true"></span><span id="s3-label">후보 μ</span></label></div>
+          <div class="range-row"><input type="range" class="theta-range" id="s3-range" min="-2" max="4" step="0.01" aria-labelledby="s3-label" /><input type="number" id="s3-num" min="-2" max="4" step="0.01" /></div>
+        </div>
+        <div class="card"><div id="s3-chart"></div></div>
+        <div class="task" id="s3-task"><span class="label">직접 해 보기</span><span id="s3-task-text">접선이 수평이 되도록 μ를 옮겨 보세요. 곡선을 끌어도 됩니다.</span></div>
+        <div class="quiz" data-quiz="s3"></div>
+      </section>
+
+      <section class="section" id="step4" aria-labelledby="h4s">
+        <h2 id="h4s">4단계 · 추정량의 성질</h2>
+        <div class="prose" data-math>
+          <p>표본이 커질수록 상대가능도 $L(\mu)/L(\hat\mu)$ 곡선이 뾰족해집니다. 꼭대기의 곡률 $-\ell''(\hat\mu) = n/\sigma^2$이 정보량이고, 표준오차는 $1/\sqrt{n}$ 비율로 줄어듭니다. 같은 시드의 앞 n개를 쓰므로 n을 늘리면 $\hat\mu$가 참값 1 근처로 모여 갑니다.</p>
+        </div>
+        <div class="field" style="max-width: 420px">
+          <div class="field-head"><label for="s4-num" id="s4-label">표본크기 n</label></div>
+          <div class="range-row"><input type="range" id="s4-range" min="5" max="200" step="1" aria-labelledby="s4-label" /><input type="number" id="s4-num" min="5" max="200" step="1" /></div>
+        </div>
+        <div class="card"><div id="s4-chart"></div><p class="small tabular" id="s4-info" aria-live="polite"></p></div>
+        <div class="task"><span class="label">직접 해 보기</span><span>n을 5에서 200까지 늘려 보세요. 회색 곡선은 n = 5일 때입니다. 수백 번 반복하면 어떻게 될지는 <a href="sampling.html?dist=normal">반복 실험</a>에서 확인하세요.</span></div>
+        <div class="quiz" data-quiz="s4"></div>
+      </section>
+
+      <div class="section callout info">
+        <div class="callout-title">다음 단계</div>
+        이제 <a href="simulator.html">시뮬레이터</a>에서 다른 분포로 직접 조작해 보고, <a href="derivations.html">유도 노트</a>에서 식을 확인하세요.
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="inner">가능도 실험실 · 모든 계산은 브라우저에서 합니다. 수리통계 수업과 독학을 위한 정적 사이트입니다.</div>
+    </footer>
+  </body>
+</html>

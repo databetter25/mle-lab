@@ -1,0 +1,79 @@
+/* 디자인 토큰 — 색은 역할을 뜻한다. 모든 페이지·패널에서 같은 색 = 같은 대상.
+   Okabe–Ito 팔레트. 그래픽용(--c-*)과 글자용(--ink-*, 대비 4.5:1 이상)을 나눈다. */
+:root {
+  --c-obs: #333333;   /* 관측치 xᵢ — 채운 원 */
+  --c-theta: #e69f00; /* 후보 θ — 큰 원, 실선 */
+  --c-mle: #0072b2;   /* θ̂ — 마름모, 세로 실선 */
+  --c-true: #009e73;  /* 참값 θ₀ — 삼각형, 긴 점선 */
+  --c-score: #cc79a7; /* 접선·점수함수 — 가는 실선 */
+  --c-warn: #d55e00;  /* 경고·음의 큰 기여 — 굵은 테두리 */
+
+  --ink-theta: #8a5a00;
+  --ink-mle: #0068a3;
+  --ink-true: #00785a;
+  --ink-score: #9c4679;
+  --ink-warn: #b04a00;
+
+  --bg: #ffffff;
+  --surface: #f7f7f5;
+  --surface-2: #efefeb;
+  --border: #deded9;
+  --text: #1b1b1f;
+  --text-2: #50505a;
+  --grid: #ececea;
+  --axis: #8a8a90;
+  --focus: #0068a3;
+
+  --theta-fill: rgba(230, 159, 0, 0.22);
+  --mle-fill: rgba(0, 114, 178, 0.12);
+  --true-fill: rgba(0, 158, 115, 0.14);
+  --warn-fill: rgba(213, 94, 0, 0.1);
+
+  --fs-title: 28px;
+  --fs-sub: 20px;
+  --fs-body: 16px;
+  --fs-small: 13px;
+
+  --sp: 8px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --maxw: 1200px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --dur: 180ms;
+
+  --font: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --c-obs: #d4d4d4;
+    --c-theta: #f5b73b;
+    --c-mle: #4fa7e0;
+    --c-true: #35c79a;
+    --c-score: #e3a1c8;
+    --c-warn: #f07a36;
+
+    --ink-theta: #f5b73b;
+    --ink-mle: #6db6e6;
+    --ink-true: #4fd1a8;
+    --ink-score: #e8adcf;
+    --ink-warn: #f5894c;
+
+    --bg: #131416;
+    --surface: #1b1c1f;
+    --surface-2: #24262a;
+    --border: #33353a;
+    --text: #ececef;
+    --text-2: #b1b1b8;
+    --grid: #26282c;
+    --axis: #8d8d95;
+    --focus: #6db6e6;
+
+    --theta-fill: rgba(245, 183, 59, 0.24);
+    --mle-fill: rgba(79, 167, 224, 0.16);
+    --true-fill: rgba(53, 199, 154, 0.16);
+    --warn-fill: rgba(240, 122, 54, 0.14);
+    color-scheme: dark;
+  }
+}

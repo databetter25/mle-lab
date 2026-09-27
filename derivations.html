@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>유도 노트 · 가능도 실험실</title>
+    <meta name="description" content="분포별 로그가능도에서 점수함수, 최대가능도추정량까지 같은 다섯 단계로 유도합니다." />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="vendor/pretendard/pretendardvariable-dynamic-subset.css" />
+    <link rel="stylesheet" href="vendor/katex/katex.min.css" />
+    <link rel="stylesheet" href="assets/css/tokens.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <script defer src="vendor/d3.v7.min.js"></script>
+    <script defer src="vendor/katex/katex.min.js"></script>
+    <script type="module" src="assets/js/pages/derivations.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="inner">
+        <a class="brand" href="index.html"><img src="assets/favicon.svg" width="24" height="24" alt="" />가능도 실험실</a>
+        <nav class="site-nav" aria-label="주 메뉴">
+          <ul>
+            <li><a href="index.html">홈</a></li>
+            <li><a href="concepts.html">개념 따라가기</a></li>
+            <li><a href="simulator.html">시뮬레이터</a></li>
+            <li><a href="derivations.html" aria-current="page">유도 노트</a></li>
+            <li><a href="sampling.html">반복 실험</a></li>
+            <li><a href="help.html">도움말</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+
+      <div class="page-head">
+        <h1>유도 노트</h1>
+        <p>모든 분포를 같은 다섯 단계로 유도합니다. 단계를 눌러 펼치고, 식 아래 <strong>그림에서 보기</strong>를 누르면 그 단계를 강조한 시뮬레이터가 열립니다.</p>
+      </div>
+
+      <div class="card prose" data-math>
+        <h2>공통 틀</h2>
+        <p>관측치 $x_1, \dots, x_n$은 서로 독립이고 같은 분포 $f(x \mid \theta)$를 따른다고 둡니다. 여기서 $\theta$(세타)는 모르는 모수입니다.</p>
+        <ol>
+          <li><p><strong>가능도함수를 쓴다.</strong> 관측치별 밀도(또는 확률질량)의 곱입니다. 자료를 고정하고 $\theta$를 바꾸는 함수로 봅니다.</p>
+            <div class="tex-block" data-tex="L(\theta) = \prod_{i=1}^{n} f(x_i \mid \theta)" data-display></div></li>
+          <li><p><strong>로그를 취해 합으로 바꾼다.</strong> 로그는 증가함수라 최댓값의 위치가 바뀌지 않습니다.</p>
+            <div class="tex-block" data-tex="\ell(\theta) = \log L(\theta) = \sum_{i=1}^{n} \log f(x_i \mid \theta)" data-display></div></li>
+          <li><p><strong>점수함수를 0으로 놓는다.</strong> 로그가능도의 기울기를 점수함수(score function)라고 부릅니다.</p>
+            <div class="tex-block" data-tex="\ell'(\theta) = \frac{d\ell}{d\theta} = 0" data-display></div></li>
+          <li><p><strong>$\theta$에 대해 풀어 $\hat\theta$를 얻는다.</strong> 이렇게 얻은 $\hat\theta$(세타 햇)가 최대가능도추정량입니다.</p></li>
+          <li><p><strong>2계 도함수가 음수임을 확인하고, 경계와 제약을 점검한다.</strong> $-\ell''(\hat\theta)$는 관측 정보량이고, 그 역수의 제곱근이 표준오차의 근사입니다.</p></li>
+        </ol>
+        <p class="small">가능도(likelihood)는 "우도"라고도 부릅니다. 이 사이트는 한국통계학회 통계용어를 따라 가능도, 로그가능도, 최대가능도추정량, 점수함수, 피셔 정보량, 충분통계량이라고 씁니다.</p>
+      </div>
+
+      <nav class="section" aria-label="분포 목차">
+        <h2>분포</h2>
+        <ul id="toc" class="toc"></ul>
+      </nav>
+
+      <div id="notes"></div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="inner">가능도 실험실 · 모든 계산은 브라우저에서 합니다. 수리통계 수업과 독학을 위한 정적 사이트입니다.</div>
+    </footer>
+  </body>
+</html>

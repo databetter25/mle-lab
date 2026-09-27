@@ -1,0 +1,10 @@
+{
+  "name": "mle-lab",
+  "private": true,
+  "type": "module",
+  "description": "가능도 실험실 — 최대가능도추정 시각화 시뮬레이션 (정적 사이트)",
+  "scripts": {
+    "test": "node --test",
+    "serve": "python -m http.server 8000"
+  }
+}

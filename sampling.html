@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>반복 실험 · 가능도 실험실</title>
+    <meta name="description" content="같은 참값과 표본크기로 표본을 수백 번 뽑아 최대가능도추정량의 분포를 봅니다." />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="vendor/pretendard/pretendardvariable-dynamic-subset.css" />
+    <link rel="stylesheet" href="vendor/katex/katex.min.css" />
+    <link rel="stylesheet" href="assets/css/tokens.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <script defer src="vendor/d3.v7.min.js"></script>
+    <script defer src="vendor/katex/katex.min.js"></script>
+    <script type="module" src="assets/js/pages/sampling.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+    <header class="site-header">
+      <div class="inner">
+        <a class="brand" href="index.html"><img src="assets/favicon.svg" width="24" height="24" alt="" />가능도 실험실</a>
+        <nav class="site-nav" aria-label="주 메뉴">
+          <ul>
+            <li><a href="index.html">홈</a></li>
+            <li><a href="concepts.html">개념 따라가기</a></li>
+            <li><a href="simulator.html">시뮬레이터</a></li>
+            <li><a href="derivations.html">유도 노트</a></li>
+            <li><a href="sampling.html" aria-current="page">반복 실험</a></li>
+            <li><a href="help.html">도움말</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+
+      <div class="page-head">
+        <h1>반복 실험</h1>
+        <p>같은 참값 θ₀와 표본크기 n으로 표본을 R번 뽑아, 그때마다 구한 θ̂를 히스토그램으로 모읍니다. 표본이 커질수록 θ̂가 참값 근처로 모이는 모습(일치성)과 점근정규 근사를 확인하세요.</p>
+      </div>
+
+      <div class="sim-layout">
+        <aside class="controls card" aria-label="실험 설정">
+          <div class="controls-body">
+            <section aria-labelledby="h-set">
+              <h2 id="h-set">설정</h2>
+              <div class="field">
+                <div class="field-head"><label for="dist">분포</label></div>
+                <select id="dist" style="width: 100%"></select>
+              </div>
+              <div class="field">
+                <div class="field-head"><label for="t0-num"><span class="swatch true" aria-hidden="true"></span><span id="t0-label">참값 θ₀</span></label></div>
+                <div class="range-row">
+                  <input type="range" class="true-range" id="t0-range" aria-labelledby="t0-label" />
+                  <input type="number" id="t0-num" />
+                </div>
+              </div>
+              <div class="field hidden" id="t02-field">
+                <div class="field-head"><label for="t02-num"><span class="swatch true" aria-hidden="true"></span><span id="t02-label">참값 σ₀²</span></label></div>
+                <div class="range-row">
+                  <input type="range" class="true-range" id="t02-range" aria-labelledby="t02-label" />
+                  <input type="number" id="t02-num" />
+                </div>
+              </div>
+              <div id="known-fields"></div>
+              <div class="field">
+                <div class="field-head"><label for="n-num" id="n-label">표본크기 n</label></div>
+                <div class="range-row">
+                  <input type="range" id="n-range" min="1" max="200" step="1" aria-labelledby="n-label" />
+                  <input type="number" id="n-num" min="1" max="200" step="1" />
+                </div>
+              </div>
+              <div class="field">
+                <div class="field-label" id="r-label">반복 횟수 R</div>
+                <div class="segmented" role="group" aria-labelledby="r-label" id="r-group">
+                  <button type="button" data-r="100" aria-pressed="false">100</button>
+                  <button type="button" data-r="500" aria-pressed="true">500</button>
+                  <button type="button" data-r="1000" aria-pressed="false">1000</button>
+                </div>
+              </div>
+              <div class="field">
+                <div class="field-head"><label for="seed">난수 시드</label></div>
+                <input type="number" id="seed" min="0" step="1" />
+              </div>
+              <div class="btn-row">
+                <button type="button" class="btn btn-primary btn-sm" id="run">다시 뽑기</button>
+                <button type="button" class="btn btn-sm" id="play">n = 10 → 50 → 200 비교</button>
+              </div>
+            </section>
+          </div>
+        </aside>
+
+        <div class="panels">
+          <section class="panel" aria-labelledby="h-hist">
+            <div class="panel-head">
+              <h2 id="h-hist">θ̂의 분포</h2>
+              <ul class="legend">
+                <li><span class="swatch mle" aria-hidden="true"></span>θ̂ 히스토그램 · 평균 (파랑 세로선)</li>
+                <li><span class="swatch true" aria-hidden="true"></span>참값 θ₀</li>
+                <li id="curve-legend">검정 곡선: 점근정규 근사 N(θ₀, 1/(n·I(θ₀)))</li>
+              </ul>
+            </div>
+            <div class="two-col" id="hists">
+              <div id="hist-main"></div>
+              <div id="hist-alt" class="hidden"></div>
+            </div>
+            <div class="stats" id="summary" aria-live="polite"></div>
+            <p class="small" id="note"></p>
+          </section>
+
+          <section class="panel hidden" id="compare-panel" aria-labelledby="h-compare">
+            <div class="panel-head"><h2 id="h-compare">n에 따른 변화 (같은 가로축)</h2></div>
+            <p class="panel-desc">표본크기가 커질수록 θ̂의 분포가 참값 둘레로 좁아집니다. 표준편차는 대략 1/√n 비율로 줄어듭니다.</p>
+            <div class="card-grid" id="compare"></div>
+          </section>
+
+          <div class="callout myth">
+            <div class="callout-title">흔한 오해: "MLE는 늘 불편추정량이다"</div>
+            정규(μ, σ²)의 σ̂² = Σ(xᵢ−x̄)²/n은 평균이 (n−1)σ²/n이라 아래로 치우칩니다. 균등(0, θ)의 θ̂ = max xᵢ도 늘 θ보다 작습니다. 분포를 바꾸고 n = 5처럼 작은 표본에서 편향을 확인해 보세요. 다만 n이 커지면 편향은 사라집니다.
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="inner">가능도 실험실 · 모든 계산은 브라우저에서 합니다. 수리통계 수업과 독학을 위한 정적 사이트입니다.</div>
+    </footer>
+  </body>
+</html>
